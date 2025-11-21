@@ -1,4 +1,4 @@
-package field
+package codec
 
 import (
 	"encoding/hex"
@@ -39,7 +39,7 @@ func TestBinaryBitmapEncodePrimary(t *testing.T) {
 	hexStr := "0123456789ABCDEF"
 	bits := bitsFromHexBinary(t, hexStr)
 
-	encoded, err := NewBinaryBitmap(bits).Encode()
+	encoded, err := NewBinaryBitmap("").Encode(bits)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -54,7 +54,7 @@ func TestBinaryBitmapEncodeSecondary(t *testing.T) {
 	hexStr := "F123456789ABCDEF0123456789ABCDEF"
 	bits := bitsFromHexBinary(t, hexStr)
 
-	encoded, err := NewBinaryBitmap(bits).Encode()
+	encoded, err := NewBinaryBitmap("").Encode(bits)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -68,7 +68,7 @@ func TestBinaryBitmapEncodeSecondary(t *testing.T) {
 func TestBinaryBitmapEncodeRejectsSecondaryWithoutBits(t *testing.T) {
 	bitmap := bitsFromHexBinary(t, "8000000000000000")
 
-	if _, err := NewBinaryBitmap(bitmap).Encode(); err == nil {
+	if _, err := NewBinaryBitmap("").Encode(bitmap); err == nil {
 		t.Fatal("expected error for secondary bitmap flag without 128 bits, got nil")
 	}
 }
@@ -79,12 +79,12 @@ func TestBinaryBitmapDecodePrimary(t *testing.T) {
 	bits := bitsFromHexBinary(t, hexStr)
 
 	bm := NewBinaryBitmap("")
-	if err := bm.Decode(data); err != nil {
+	if _, err := bm.Decode(data); err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	if bm.Value() != bits {
-		t.Fatalf("decoded bits mismatch: got %q want %q", bm.Value(), bits)
+	if bm.String() != bits {
+		t.Fatalf("decoded bits mismatch: got %q want %q", bm.String(), bits)
 	}
 }
 
@@ -94,18 +94,18 @@ func TestBinaryBitmapDecodeSecondary(t *testing.T) {
 	bits := bitsFromHexBinary(t, hexStr)
 
 	bm := NewBinaryBitmap("")
-	if err := bm.Decode(data); err != nil {
+	if _, err := bm.Decode(data); err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	if bm.Value() != bits {
-		t.Fatalf("decoded bits mismatch: got %q want %q", bm.Value(), bits)
+	if bm.String() != bits {
+		t.Fatalf("decoded bits mismatch: got %q want %q", bm.String(), bits)
 	}
 }
 
 func TestBinaryBitmapDecodeMissingSecondary(t *testing.T) {
 	data := hexToBytes(t, "8000000000000000")
-	if err := NewBinaryBitmap("").Decode(data); err == nil {
+	if _, err := NewBinaryBitmap("").Decode(data); err == nil {
 		t.Fatal("expected error when secondary bitmap flag set but only primary provided")
 	}
 }

@@ -1,18 +1,18 @@
 package prefixer
 
 // No prefixer.
-var None *noPrefierxer = &noPrefierxer{}
+var None *noPrefixer = &noPrefixer{}
 
-type noPrefierxer struct{}
+type noPrefixer struct{}
 
-func (n *noPrefierxer) Encode(length int, data []byte) error {
+func (n *noPrefixer) Encode(length int, data []byte) error {
 	return nil
 }
 
-func (n *noPrefierxer) Decode(data []byte, offset int) (int, error) {
+func (n *noPrefixer) Decode(data []byte, offset int) (int, error) {
 	return -1, nil
 }
 
-func (n *noPrefierxer) PackedLen() int {
+func (n *noPrefixer) PackedLen() int {
 	return 0
 }

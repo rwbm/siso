@@ -1,0 +1,52 @@
+{
+    "fields": [
+        {
+            "id": 0,
+            "len": 4,
+            "name": "Message Type Indicator",
+            "data_type": "ASCII_NUMERIC"
+        },
+        {
+            "id": 1,
+            "len": 16,
+            "name": "Primary Bitmap",
+            "data_type": "ASCII_BITMAP"
+        },
+        {
+            "id": 2,
+            "len": 19,
+            "name": "Primary Account Number",
+            "data_type": "ASCII_LLNUM"
+        },
+        {
+            "id": 3,
+            "len": 6,
+            "name": "Processing Code",
+            "data_type": "ASCII_NUMERIC"
+        },
+        {
+            "id": 4,
+            "len": 12,
+            "name": "Transaction Amount",
+            "data_type": "ASCII_NUMERIC"
+        },
+        {
+            "id": 5,
+            "len": 12,
+            "name": "Settlement Amount",
+            "data_type": "ASCII_NUMERIC"
+        },
+        {
+            "id": 6,
+            "len": 12,
+            "name": "Cardholder Billing Amount",
+            "data_type": "ASCII_NUMERIC"
+        },
+        {
+            "id": 7,
+            "len": 10,
+            "name": "Transmission Date and Time",
+            "data_type": "ASCII_NUMERIC"
+        }
+    ]
+}

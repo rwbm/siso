@@ -1,4 +1,4 @@
-package field
+package codec
 
 // IsoBitmap extends IsoField with helpers to toggle and inspect bitmap bits.
 type IsoBitmap interface {

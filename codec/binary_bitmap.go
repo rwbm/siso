@@ -1,4 +1,4 @@
-package field
+package codec
 
 import (
 	"errors"
@@ -38,24 +38,12 @@ func (b *BinaryBitmap) ensureInitialized() {
 	}
 }
 
-func (b *BinaryBitmap) Value() string {
-	return string(b.value)
-}
-
 func (b *BinaryBitmap) String() string {
-	return b.Value()
+	return string(b.value)
 }
 
 func (b *BinaryBitmap) Length() int {
 	return len(b.value)
-}
-
-func (b *BinaryBitmap) Prefixer() prefixer.Prefixer {
-	return b.prefixer
-}
-
-func (b *BinaryBitmap) Padder() padder.Padder {
-	return b.padder
 }
 
 func (b *BinaryBitmap) IsSet(pos int) bool {
@@ -135,7 +123,9 @@ func (b *BinaryBitmap) Bitmap() []int {
 }
 
 // Encode produces the packed binary representation (8 or 16 bytes).
-func (b *BinaryBitmap) Encode() ([]byte, error) {
+func (b *BinaryBitmap) Encode(value string) ([]byte, error) {
+	b.value = []byte(value)
+
 	if len(b.value) == 0 {
 		return nil, errors.New("bitmap value is empty")
 	}
@@ -167,13 +157,13 @@ func (b *BinaryBitmap) Encode() ([]byte, error) {
 }
 
 // Decode reads the packed binary representation and populates the bit string.
-func (b *BinaryBitmap) Decode(data []byte) error {
+func (b *BinaryBitmap) Decode(data []byte) (string, error) {
 	if len(data) == 0 {
-		return errors.New("bitmap data is empty")
+		return "", errors.New("bitmap data is empty")
 	}
 
 	if len(data) != 8 && len(data) != 16 {
-		return fmt.Errorf("bitmap data must be 8 or 16 bytes, got %d", len(data))
+		return "", fmt.Errorf("bitmap data must be 8 or 16 bytes, got %d", len(data))
 	}
 
 	bits := make([]byte, 0, len(data)*8)
@@ -191,11 +181,11 @@ func (b *BinaryBitmap) Decode(data []byte) error {
 	}
 
 	if len(data) == 8 && bits[0] == '1' {
-		return errors.New("secondary bitmap indicated but only primary bitmap provided")
+		return "", errors.New("secondary bitmap indicated but only primary bitmap provided")
 	}
 
 	b.value = bits
-	return nil
+	return string(bits), nil
 }
 
 func parseByte(bits []byte) (byte, error) {

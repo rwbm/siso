@@ -1,4 +1,4 @@
-package field
+package codec
 
 import (
 	"errors"
@@ -12,7 +12,7 @@ import (
 
 const hexDigits = "0123456789ABCDEF"
 
-func NewBitmap(value string) *AsciiBitmap {
+func NewAsciiBitmap(value string) *AsciiBitmap {
 	ab := &AsciiBitmap{
 		value:    []byte(value),
 		prefixer: prefixer.None,
@@ -21,9 +21,9 @@ func NewBitmap(value string) *AsciiBitmap {
 	return ab
 }
 
-// NewEmptyBitmap returns a 64-bit bitmap initialized to all zeros.
-func NewEmptyBitmap() *AsciiBitmap {
-	return NewBitmap(strings.Repeat("0", 64))
+// NewEmptyAsciiBitmap returns a 64-bit bitmap initialized to all zeros.
+func NewEmptyAsciiBitmap() *AsciiBitmap {
+	return NewAsciiBitmap(strings.Repeat("0", 64))
 }
 
 // Represents a bitmap field in ASCII format.
@@ -39,24 +39,12 @@ func (i *AsciiBitmap) ensureInitialized() {
 	}
 }
 
-func (i *AsciiBitmap) Value() string {
-	return string(i.value)
-}
-
 func (i *AsciiBitmap) String() string {
-	return i.Value()
+	return string(i.value)
 }
 
 func (i *AsciiBitmap) Length() int {
 	return len(i.value)
-}
-
-func (i *AsciiBitmap) Prefixer() prefixer.Prefixer {
-	return i.prefixer
-}
-
-func (i *AsciiBitmap) Padder() padder.Padder {
-	return i.padder
 }
 
 func (i *AsciiBitmap) IsSet(pos int) bool {
@@ -139,7 +127,9 @@ func (i *AsciiBitmap) Bitmap() []int {
 	return bitsOn
 }
 
-func (i *AsciiBitmap) Encode() ([]byte, error) {
+func (i *AsciiBitmap) Encode(value string) ([]byte, error) {
+	i.value = []byte(value)
+
 	if len(i.value) == 0 {
 		return nil, errors.New("bitmap value is empty")
 	}
@@ -177,13 +167,13 @@ func (i *AsciiBitmap) Encode() ([]byte, error) {
 	return []byte(b.String()), nil
 }
 
-func (i *AsciiBitmap) Decode(data []byte) error {
+func (i *AsciiBitmap) Decode(data []byte) (string, error) {
 	if len(data) == 0 {
-		return errors.New("bitmap data is empty")
+		return "", errors.New("bitmap data is empty")
 	}
 
 	if len(data) != 16 && len(data) != 32 {
-		return fmt.Errorf("bitmap data must be 16 or 32 hex characters, got %d", len(data))
+		return "", fmt.Errorf("bitmap data must be 16 or 32 hex characters, got %d", len(data))
 	}
 
 	hexString := strings.ToUpper(string(data))
@@ -194,7 +184,7 @@ func (i *AsciiBitmap) Decode(data []byte) error {
 	for pos, c := range hexString {
 		n, err := strconv.ParseUint(string(c), 16, 4)
 		if err != nil {
-			return fmt.Errorf("invalid hex character %q at position %d", c, pos)
+			return "", fmt.Errorf("invalid hex character %q at position %d", c, pos)
 		}
 		bits.WriteString(fmt.Sprintf("%04b", n))
 	}
@@ -202,11 +192,11 @@ func (i *AsciiBitmap) Decode(data []byte) error {
 	bitmap := []byte(bits.String())
 
 	if len(data) == 16 && bitmap[0] == '1' {
-		return errors.New("secondary bitmap indicated but only primary bitmap provided")
+		return "", errors.New("secondary bitmap indicated but only primary bitmap provided")
 	}
 
 	i.value = bitmap
-	return nil
+	return string(bitmap), nil
 }
 
 func validatePosition(pos int) error {
