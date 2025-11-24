@@ -4,6 +4,8 @@ package codec
 type DataType string
 
 const (
+	TypeUndefined DataType = ""
+
 	// ASCII
 	TypeAsciiNumeric     DataType = "ASCII_NUMERIC"
 	TypeAsciiLLNumeric   DataType = "ASCII_LLNUM"

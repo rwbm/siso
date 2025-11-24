@@ -6,6 +6,32 @@ import (
 	"github.com/shopspring/decimal"
 )
 
+func TestValueAsNumber(t *testing.T) {
+	tests := []struct {
+		name  string
+		value string
+		want  int64
+	}{
+		{name: "empty", value: "", want: 0},
+		{name: "positive", value: "12345", want: 12345},
+		{name: "negative", value: "-987", want: -987},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			field := Field{value: tc.value}
+			got, err := field.ValueAsNumber()
+			if err != nil {
+				t.Fatalf("ValueAsNumber returned error: %v", err)
+			}
+			if got != tc.want {
+				t.Fatalf("ValueAsNumber = %d, want %d", got, tc.want)
+			}
+		})
+	}
+}
+
 func TestValueAsDecimal(t *testing.T) {
 	tests := []struct {
 		name          string
@@ -23,7 +49,7 @@ func TestValueAsDecimal(t *testing.T) {
 	for _, tc := range tests {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
-			field := Field{Value: tc.value}
+			field := Field{value: tc.value}
 			got, err := field.ValueAsDecimal(tc.decimalPlaces)
 			if err != nil {
 				t.Fatalf("ValueAsDecimal returned error: %v", err)

@@ -13,7 +13,7 @@ type IsoMessage struct {
 
 func (i *IsoMessage) WithField(f Field) *IsoMessage {
 	// bitmaps aren't set manually
-	if f.ID == 1 || f.ID == 128 {
+	if f.ID == FieldPrimaryBitmap || f.ID == FieldSecondaryBitmap {
 		return i
 	}
 
@@ -44,6 +44,30 @@ func (i *IsoMessage) Contains(id int) bool {
 	return false
 }
 
+func (i *IsoMessage) MTI() (f *Field, ok bool) {
+	if i.fields != nil {
+		value, ok := i.fields[FieldMessageTypeIndicator]
+		return &value, ok
+	}
+	return nil, false
+}
+
+func (i *IsoMessage) PrimaryBitmap() (f *Field, ok bool) {
+	if i.fields != nil {
+		value, ok := i.fields[FieldPrimaryBitmap]
+		return &value, ok
+	}
+	return nil, false
+}
+
+func (i *IsoMessage) SecondaryBitmap() (f *Field, ok bool) {
+	if i.fields != nil {
+		value, ok := i.fields[FieldSecondaryBitmap]
+		return &value, ok
+	}
+	return nil, false
+}
+
 // StringXml returns a string with an XML representation of the message.
 func (i *IsoMessage) StringXml() string {
 	// extract ids and sort it
@@ -55,7 +79,7 @@ func (i *IsoMessage) StringXml() string {
 
 	sb := strings.Builder{}
 	if mti, exists := i.Field(FieldMessageTypeIndicator); exists {
-		sb.WriteString(fmt.Sprintf("<iso mti=\"%s\">\n", mti.Value))
+		sb.WriteString(fmt.Sprintf("<iso mti=\"%s\">\n", mti.value))
 	} else {
 		sb.WriteString("<iso>\n")
 	}
@@ -65,7 +89,7 @@ func (i *IsoMessage) StringXml() string {
 		if k == FieldMessageTypeIndicator || k == FieldPrimaryBitmap || k == FieldSecondaryBitmap {
 			continue
 		}
-		sb.WriteString(fmt.Sprintf("   <field id=\"%d\">%s</field>\n", i.fields[k].ID, i.fields[k].Value))
+		sb.WriteString(fmt.Sprintf("   <field id=\"%d\">%s</field>\n", i.fields[k].ID, i.fields[k].value))
 	}
 
 	sb.WriteString("<iso>")
@@ -76,4 +100,8 @@ func (i *IsoMessage) ensureMap() {
 	if i.fields == nil {
 		i.fields = make(map[int]Field)
 	}
+}
+
+func (i *IsoMessage) refreshBitmaps() {
+	// TODO:
 }

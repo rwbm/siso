@@ -22,7 +22,6 @@ func (p *leftPadding) Pad(s string, maxLen int) string {
 	if len(s) == maxLen {
 		return s
 	}
-
 	return fmt.Sprintf("%s%s", strings.Repeat(p.filler, maxLen-len(s)), s)
 }
 
@@ -34,6 +33,5 @@ func (p *leftPadding) Unpad(s string) string {
 	for strings.HasPrefix(s, p.filler) {
 		s = s[len(p.filler):]
 	}
-
 	return s
 }
