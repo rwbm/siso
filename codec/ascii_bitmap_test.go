@@ -27,7 +27,7 @@ func bitsFromHex(t *testing.T, hex string) string {
 
 func TestAsciiBitmapEncodePrimary(t *testing.T) {
 	bitmap := bitsFromHex(t, "0123456789ABCDEF")
-	encoded, err := NewAsciiBitmap("").Encode(bitmap)
+	encoded, err := NewAsciiBitmap().Encode(bitmap)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -39,7 +39,7 @@ func TestAsciiBitmapEncodePrimary(t *testing.T) {
 
 func TestAsciiBitmapEncodeSecondary(t *testing.T) {
 	bitmap := bitsFromHex(t, "F123456789ABCDEF0123456789ABCDEF")
-	encoded, err := NewAsciiBitmap("").Encode(bitmap)
+	encoded, err := NewAsciiBitmap().Encode(bitmap)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -53,7 +53,7 @@ func TestAsciiBitmapEncodeRejectsSecondaryWithoutBits(t *testing.T) {
 	// First bit set indicates a secondary bitmap should follow.
 	bitmap := bitsFromHex(t, "8000000000000000")
 
-	if _, err := NewAsciiBitmap("").Encode(bitmap); err == nil {
+	if _, err := NewAsciiBitmap().Encode(bitmap); err == nil {
 		t.Fatal("expected error for secondary bitmap flag without 128 bits, got nil")
 	}
 }
@@ -62,7 +62,7 @@ func TestAsciiBitmapDecodePrimary(t *testing.T) {
 	hexBitmap := "0123456789ABCDEF"
 	bitmap := bitsFromHex(t, hexBitmap)
 
-	field := NewAsciiBitmap("")
+	field := NewAsciiBitmap()
 	if _, err := field.Decode([]byte(hexBitmap)); err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -76,7 +76,7 @@ func TestAsciiBitmapDecodeSecondary(t *testing.T) {
 	hexBitmap := "F123456789ABCDEF0123456789ABCDEF"
 	bitmap := bitsFromHex(t, hexBitmap)
 
-	field := NewAsciiBitmap("")
+	field := NewAsciiBitmap()
 	if _, err := field.Decode([]byte(hexBitmap)); err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -92,19 +92,19 @@ func TestAsciiBitmapDecodeSecondary(t *testing.T) {
 
 func TestAsciiBitmapDecodeMissingSecondary(t *testing.T) {
 	// Primary bitmap indicates a secondary bitmap should follow.
-	if _, err := NewAsciiBitmap("").Decode([]byte("8000000000000000")); err == nil {
+	if _, err := NewAsciiBitmap().Decode([]byte("8000000000000000")); err == nil {
 		t.Fatal("expected error when secondary bitmap flag set but no secondary bitmap provided")
 	}
 }
 
 func TestAsciiBitmapDecodeRejectsInvalidHex(t *testing.T) {
-	if _, err := NewAsciiBitmap("").Decode([]byte("ZZ00000000000000")); err == nil {
+	if _, err := NewAsciiBitmap().Decode([]byte("ZZ00000000000000")); err == nil {
 		t.Fatal("expected error for invalid hex characters, got nil")
 	}
 }
 
 func TestAsciiBitmapSetPrimaryBit(t *testing.T) {
-	bm := NewAsciiBitmap("")
+	bm := NewAsciiBitmap()
 
 	if err := bm.Set(3); err != nil {
 		t.Fatalf("set returned error: %v", err)
@@ -120,7 +120,7 @@ func TestAsciiBitmapSetPrimaryBit(t *testing.T) {
 }
 
 func TestAsciiBitmapSetSecondaryBitExtends(t *testing.T) {
-	bm := NewAsciiBitmap("")
+	bm := NewAsciiBitmap()
 
 	if err := bm.Set(70); err != nil {
 		t.Fatalf("set returned error: %v", err)
@@ -136,7 +136,7 @@ func TestAsciiBitmapSetSecondaryBitExtends(t *testing.T) {
 }
 
 func TestAsciiBitmapClearSecondaryBitShrinks(t *testing.T) {
-	bm := NewAsciiBitmap("")
+	bm := NewAsciiBitmap()
 
 	if err := bm.Set(70); err != nil {
 		t.Fatalf("set returned error: %v", err)
@@ -160,7 +160,7 @@ func TestAsciiBitmapClearSecondaryBitShrinks(t *testing.T) {
 }
 
 func TestAsciiBitmapIsSetOutOfRange(t *testing.T) {
-	bm := NewAsciiBitmap("")
+	bm := NewAsciiBitmap()
 
 	if bm.IsSet(0) {
 		t.Fatal("expected IsSet to return false for out-of-range position")

@@ -3,7 +3,7 @@ package codec
 import "testing"
 
 func TestAsciiNumericEncode(t *testing.T) {
-	an := NewAsciiNumeric("12345")
+	an := NewAsciiNumeric()
 	encoded, err := an.Encode("12345")
 	if err != nil {
 		t.Fatalf("Encode returned error: %v", err)
@@ -14,14 +14,14 @@ func TestAsciiNumericEncode(t *testing.T) {
 }
 
 func TestAsciiNumericEncodeRejectsNonNumeric(t *testing.T) {
-	an := NewAsciiNumeric("12A")
+	an := NewAsciiNumeric()
 	if _, err := an.Encode("12A"); err == nil {
 		t.Fatalf("Encode succeeded, expected error for non-numeric input")
 	}
 }
 
 func TestAsciiNumericDecode(t *testing.T) {
-	an := NewAsciiNumeric("")
+	an := NewAsciiNumeric()
 	val, err := an.Decode([]byte("000789"))
 	if err != nil {
 		t.Fatalf("Decode returned error: %v", err)
@@ -32,7 +32,7 @@ func TestAsciiNumericDecode(t *testing.T) {
 }
 
 func TestAsciiNumericDecodeRejectsInvalid(t *testing.T) {
-	an := NewAsciiNumeric("")
+	an := NewAsciiNumeric()
 	if _, err := an.Decode([]byte("12A")); err == nil {
 		t.Fatalf("Decode succeeded, expected error for non-numeric data")
 	}

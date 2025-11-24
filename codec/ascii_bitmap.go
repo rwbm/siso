@@ -12,9 +12,8 @@ import (
 
 const hexDigits = "0123456789ABCDEF"
 
-func NewAsciiBitmap(value string) *AsciiBitmap {
+func NewAsciiBitmap() *AsciiBitmap {
 	ab := &AsciiBitmap{
-		value:    []byte(value),
 		prefixer: prefixer.None,
 		padder:   padder.None,
 	}
@@ -23,7 +22,9 @@ func NewAsciiBitmap(value string) *AsciiBitmap {
 
 // NewEmptyAsciiBitmap returns a 64-bit bitmap initialized to all zeros.
 func NewEmptyAsciiBitmap() *AsciiBitmap {
-	return NewAsciiBitmap(strings.Repeat("0", 64))
+	bm := NewAsciiBitmap()
+	bm.value = []byte(strings.Repeat("0", 64))
+	return bm
 }
 
 // Represents a bitmap field in ASCII format.

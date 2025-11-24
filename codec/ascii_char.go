@@ -9,9 +9,8 @@ import (
 	"github.com/rwbm/siso/prefixer"
 )
 
-func NewAsciiChar(value string) *AsciiChar {
+func NewAsciiChar() *AsciiChar {
 	ac := &AsciiChar{
-		value:    []byte(value),
 		prefixer: prefixer.None,
 		padder:   padder.LeftZero,
 		parser:   parser.Ascii,
@@ -20,38 +19,26 @@ func NewAsciiChar(value string) *AsciiChar {
 }
 
 type AsciiChar struct {
-	value    []byte
 	prefixer prefixer.Prefixer
 	padder   padder.Padder
 	parser   parser.Parser
 }
 
-func (a *AsciiChar) String() string {
-	return string(a.value)
-}
-
-func (a *AsciiChar) Length() int {
-	return len(a.value)
-}
-
 func (a *AsciiChar) Encode(value string) ([]byte, error) {
-	a.value = []byte(value)
-
-	if err := a.ensureASCII(); err != nil {
+	if err := a.ensureASCII([]byte(value)); err != nil {
 		return nil, err
 	}
 
-	content := a.value
 	prefixLen := 0
 	if a.prefixer != nil {
 		prefixLen = a.prefixer.PackedLen()
 	}
 
-	out := make([]byte, prefixLen+len(content))
-	copy(out[prefixLen:], content)
+	out := make([]byte, prefixLen+len(value))
+	copy(out[prefixLen:], value)
 
 	if a.prefixer != nil {
-		if err := a.prefixer.Encode(len(content), out); err != nil {
+		if err := a.prefixer.Encode(len(value), out); err != nil {
 			return nil, fmt.Errorf("encode prefix: %w", err)
 		}
 	}
@@ -102,15 +89,14 @@ func (a *AsciiChar) Decode(data []byte) (string, error) {
 		value = a.padder.Unpad(value)
 	}
 
-	a.value = []byte(value)
 	return value, nil
 }
 
-func (a *AsciiChar) ensureASCII() error {
-	if !utf8.Valid(a.value) {
+func (a *AsciiChar) ensureASCII(b []byte) error {
+	if !utf8.Valid(b) {
 		return fmt.Errorf("encode: value is not valid UTF-8")
 	}
-	for idx, r := range string(a.value) {
+	for idx, r := range string(b) {
 		if r > 0x7F {
 			return fmt.Errorf("encode: non-ASCII rune %q at position %d", r, idx)
 		}

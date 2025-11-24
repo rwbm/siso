@@ -15,3 +15,4 @@ cfv
 go.work
 .DS_Store
 .gocache
+.cache

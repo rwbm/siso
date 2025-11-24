@@ -9,9 +9,8 @@ import (
 	"github.com/rwbm/siso/prefixer"
 )
 
-func NewAsciiNumeric(value string) *AsciiNumeric {
+func NewAsciiNumeric() *AsciiNumeric {
 	an := &AsciiNumeric{
-		value:    []byte(value),
 		prefixer: prefixer.None,
 		padder:   padder.LeftZero,
 		parser:   parser.Ascii,
@@ -20,38 +19,26 @@ func NewAsciiNumeric(value string) *AsciiNumeric {
 }
 
 type AsciiNumeric struct {
-	value    []byte
 	prefixer prefixer.Prefixer
 	padder   padder.Padder
 	parser   parser.Parser
 }
 
-func (a *AsciiNumeric) String() string {
-	return string(a.value)
-}
-
-func (a *AsciiNumeric) Length() int {
-	return len(a.value)
-}
-
 func (a *AsciiNumeric) Encode(value string) ([]byte, error) {
-	a.value = []byte(value)
-
-	if err := a.ensureNumeric(); err != nil {
+	if err := a.ensureNumeric([]byte(value)); err != nil {
 		return nil, err
 	}
 
-	content := a.value
 	prefixLen := 0
 	if a.prefixer != nil {
 		prefixLen = a.prefixer.PackedLen()
 	}
 
-	out := make([]byte, prefixLen+len(content))
-	copy(out[prefixLen:], content)
+	out := make([]byte, prefixLen+len(value))
+	copy(out[prefixLen:], value)
 
 	if a.prefixer != nil {
-		if err := a.prefixer.Encode(len(content), out); err != nil {
+		if err := a.prefixer.Encode(len(value), out); err != nil {
 			return nil, fmt.Errorf("encode prefix: %w", err)
 		}
 	}
@@ -99,15 +86,14 @@ func (a *AsciiNumeric) Decode(data []byte) (string, error) {
 		return "", fmt.Errorf("decode: unexpected %d trailing bytes after parse", len(rest))
 	}
 
-	a.value = []byte(value)
 	return value, nil
 }
 
-func (a *AsciiNumeric) ensureNumeric() error {
-	if !utf8.Valid(a.value) {
+func (a *AsciiNumeric) ensureNumeric(b []byte) error {
+	if !utf8.Valid(b) {
 		return fmt.Errorf("encode: value is not valid UTF-8")
 	}
-	for idx, r := range string(a.value) {
+	for idx, r := range string(b) {
 		if r < '0' || r > '9' {
 			return fmt.Errorf("encode: non-numeric character %q at position %d", r, idx)
 		}
